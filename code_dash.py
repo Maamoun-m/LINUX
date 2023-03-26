@@ -1,35 +1,39 @@
-# -*- coding: utf-8 -*-
+
 """
-Created on Tue Jan 31 01:25:39 2023
+Created on Sun Mar 20 17:09:06 2023
 
 @author: mekki
 """
-import subprocess
+import pandas as pd
 import dash
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 from dash.dependencies import Input, Output
+import plotly.graph_objs as go
 
-# retrieve initial data
-index_value = subprocess.check_output(["curl", "https://www.marketwatch.com/investing/index/nik/charts?countryCode=JP", "|", "grep", "'<bg-quote class=\"value'>\"'", "|", "sed", "'s/<bg-quote class=\"value\">//g'", "|", "sed", "'s/<\\/bg-quote>//g'", "|", "awk", "'{print $1}'"]).decode("utf-8").strip()
+df = pd.read_csv('arbitrum_prices.csv')
 
-# create the app
 app = dash.Dash(__name__)
 
-# define the layout
-app.layout = html.Div([
-    html.H1("Nikkei Index"),
-    html.Div(id="index-value", children=f"Current value: {index_value}"),
-    dcc.Interval(id="interval-component", interval=60*1000, n_intervals=0)
+app.layout = html.Div(children=[
+    html.H1(children='Arbitrum Prices'),
+    dcc.Graph(id='arbitrum-graph'),
+    dcc.Interval(
+        id='interval-component',
+        interval=60*1000,
+        n_intervals=0
+    )
 ])
+@app.callback(Output('arbitrum-graph', 'figure'),
+              [Input('interval-component', 'n_intervals')])
+def update_graph(n):
+    current_time = pd.Timestamp.now()
+    filtered_df = df[df['TIME'] <= current_time]
+    trace = go.Scatter(x=filtered_df['TIME'], y=filtered_df['PRIX'])
+    layout = go.Layout(title='Arbitrum prices Over Time',
+                       xaxis=dict(title='Time'),
+                       yaxis=dict(title='Price'))
+    return {'data': [trace], 'layout': layout}
 
-# define the callbacks
-@app.callback(Output("index-value", "children"),
-              Input("interval-component", "n_intervals"))
-def update_index_value(n):
-    index_value = subprocess.check_output(["curl", "https://www.marketwatch.com/investing/index/nik/charts?countryCode=JP", "|", "grep", "'<bg-quote class=\"value'>\"'", "|", "sed", "'s/<bg-quote class=\"value\">//g'", "|", "sed", "'s/<\\/bg-quote>//g'", "|", "awk", "'{print $1}'"]).decode("utf-8").strip()
-    return f"Current value: {index_value}"
-
-# run the app
-if __name__ == "__main__":
-    app.run_server(debug=True)
+if __name__ == '__main__':
+    app.run_server(host = '0.0.0.0',port = 8000, debug=True)
