@@ -1,8 +1,10 @@
-from flask import Flask, render_template, request
 import random
+import dash
+import dash_html_components as html
+import dash_core_components as dcc
+from dash.dependencies import Input, Output, State
 
-app = Flask(__name__)
-
+# Define the questions and answers
 questions = [
     "Is Python an interpreted language?",
     "Can you use Git to manage your code?",
@@ -50,21 +52,41 @@ answers = [
     "yes"
 ]
 
-@app.route('/')
-def index():
-    random_question_index = random.randint(0, 19)
-    random_question = questions[random_question_index]
-    return render_template('index.html', question=random_question)
+# Define the Dash app
+app = dash.Dash(__name__)
 
-@app.route('/', methods=['POST'])
-def evaluate_answer():
-    user_answer = request.form['answer']
-    question_index = questions.index(request.form['question'])
-    if user_answer.lower() == answers[question_index]:
-        result = "Correct!"
-    else:
-        result = "Incorrect. The answer is {}".format(answers[question_index])
-    return render_template('result.html', result=result)
+# Define the app layout
+app.layout = html.Div([
+    html.H1("Random Quiz"),
+    html.H3(id="question"),
+    dcc.Input(id="answer", type="text", placeholder="Enter your answer here"),
+    html.Button("Random Question", id="random-question-button", n_clicks=0),
+    html.Button("Evaluate Answer", id="evaluate-answer-button", n_clicks=0),
+    html.Div(id="answer-feedback")
+])
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+# Define the callback to display a random question
+@app.callback(Output("question", "children"), [Input("random-question-button", "n_clicks")])
+def display_random_question(n_clicks):
+    if n_clicks > 0:
+        topic = random.choice(list(questions.keys()))
+        return questions[topic]
+
+# Define the callback to evaluate the answer
+@app.callback(Output("answer-feedback", "children"),
+              [Input("evaluate-answer-button", "n_clicks")],
+              [State("answer", "value"), State("question", "children")])
+def evaluate_answer(n_clicks, answer_value, question_value):
+    if n_clicks > 0:
+        topic = list(questions.keys())[list(questions.values()).index(question_value)]
+        expected_answer = answers[topic]
+        if answer_value == expected_answer:
+            return html.Div("Correct!", style={"color": "green"})
+        elif answer_value in expected_answer:
+            return html.Div("Partially correct.", style={"color": "orange"})
+        else:
+            return html.Div("Incorrect.", style={"color": "red"})
+
+# Run the app
+if __name__ == "__main__":
+    app.run_server(debug=True)
