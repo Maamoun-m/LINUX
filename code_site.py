@@ -82,8 +82,6 @@ def evaluate_answer(n_clicks, answer_value, question_value):
         expected_answer = answers[topic]
         if answer_value == expected_answer:
             return html.Div("Correct!", style={"color": "green"})
-        elif answer_value in expected_answer:
-            return html.Div("Partially correct.", style={"color": "orange"})
         else:
             return html.Div("Incorrect.", style={"color": "red"})
 
