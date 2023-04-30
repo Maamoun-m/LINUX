@@ -1,7 +1,6 @@
+from dash import dcc,html
 import random
 import dash
-import dash_html_components as html
-import dash_core_components as dcc
 from dash.dependencies import Input, Output, State
 
 # Define the questions and answers
@@ -69,8 +68,7 @@ app.layout = html.Div([
 @app.callback(Output("question", "children"), [Input("random-question-button", "n_clicks")])
 def display_random_question(n_clicks):
     if n_clicks > 0:
-        topic = random.choice(list(questions.keys()))
-        return questions[topic]
+        return(random.choice(questions))
 
 # Define the callback to evaluate the answer
 @app.callback(Output("answer-feedback", "children"),
@@ -78,8 +76,7 @@ def display_random_question(n_clicks):
               [State("answer", "value"), State("question", "children")])
 def evaluate_answer(n_clicks, answer_value, question_value):
     if n_clicks > 0:
-        topic = list(questions.keys())[list(questions.values()).index(question_value)]
-        expected_answer = answers[topic]
+        expected_answer = answers[questions.index(question_value)]
         if answer_value == expected_answer:
             return html.Div("Correct!", style={"color": "green"})
         else:
@@ -88,3 +85,4 @@ def evaluate_answer(n_clicks, answer_value, question_value):
 # Run the app
 if __name__ == "__main__":
     app.run_server(debug=True)
+
