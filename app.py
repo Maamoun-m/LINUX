@@ -84,5 +84,5 @@ def evaluate_answer(n_clicks, answer_value, question_value):
 
 # Run the app
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(debug=True,host=5000)
 
