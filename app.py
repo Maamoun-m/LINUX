@@ -11,7 +11,7 @@ questions = [
     "Can you use Python for web development?",
     "Is Git a version control system?",
     "Can you use Linux for server administration?",
-    "Is Python a high-level language?",
+    "Is Python a low-level language?",
     "Can you use Git to collaborate with others on code?",
     "Is Linux open-source software?",
     "Can you use Python for data analysis?",
@@ -23,8 +23,11 @@ questions = [
     "Can you use Python for machine learning?",
     "Is Git used for tracking changes to code?",
     "Can you use Linux for cybersecurity?",
-    "Is Python easy to learn?",
-    "Can you use Git for continuous integration?"
+    "Can you use Git for continuous integration?",
+    "Is Python a low-level language?",
+    "Is Linux only used for servers and supercomputers?",
+    "Does Linux have built-in support for networking and internet protocols?",
+    "Is Linux known for its stability and security features?"
 ]
 
 answers = [
@@ -34,6 +37,7 @@ answers = [
     "yes",
     "yes",
     "yes",
+    "no",
     "yes",
     "yes",
     "yes",
@@ -46,7 +50,8 @@ answers = [
     "yes",
     "yes",
     "yes",
-    "yes",
+    "no",
+    "no",
     "yes",
     "yes"
 ]
@@ -58,7 +63,7 @@ app = dash.Dash(__name__)
 app.layout = html.Div([
     html.H1("Random Quiz"),
     html.H3(id="question"),
-    dcc.Input(id="answer", type="text", placeholder="Enter your answer here"),
+    dcc.Input(id="answer", type="text", placeholder="Enter your answer(yes/no)"),
     html.Button("Random Question", id="random-question-button", n_clicks=0),
     html.Button("Evaluate Answer", id="evaluate-answer-button", n_clicks=0),
     html.Div(id="answer-feedback")
@@ -83,6 +88,6 @@ def evaluate_answer(n_clicks, answer_value, question_value):
             return html.Div("Incorrect.", style={"color": "red"})
 
 # Run the app
-if __name__ == "__main__":
-    app.run_server(debug=True,host=5000)
+if __name__ == '__main__':
+    app.run_server(host='0.0.0.0', port=8050, debug=True)
 
